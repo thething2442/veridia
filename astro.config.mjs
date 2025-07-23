@@ -17,7 +17,7 @@ export default defineConfig({
       
       // Add your deployed frontend host here.
       // Render typically uses a hostname like 'your-service-name.onrender.com'
-      allowedHosts: ['frontend-veridia.onrender.com'], // <--- ADD THIS LINE
+      allowedHosts: ['https://frontend-veridia.onrender.com','https://netlify.com'], // <--- ADD THIS LINE
     },
   },
   // === FIX END ===
