@@ -1,37 +1,35 @@
 # netlify.toml
 
 [build]
-  # The command to run to build your Astro project.
   command = "npm run build"
+  # === FIX START ===
+  # When using @astrojs/netlify adapter with output: 'server',
+  # the static client assets are usually placed directly in the 'dist' folder.
+  # Change 'dist/client' to 'dist'.
+  publish = "dist" # <--- CORRECTED THIS LINE
+  # === FIX END ===
 
-  # The directory that contains the deployable static assets (your frontend HTML, CSS, JS).
-  # When using @astrojs/node with output: 'server', Astro puts static assets in 'dist/client'.
-  publish = "dist/client"
+# The @astrojs/netlify adapter typically handles functions and redirects automatically.
+# You might not need explicit [functions] or [[redirects]] sections here,
+# as the adapter generates them internally for Netlify.
+# However, if you've explicitly added them and they are not causing errors,
+# you can keep them. For simplicity, I'll show the minimal version.
 
-# This section configures Netlify Functions (or serverless functions).
-[functions]
-  # The directory where Astro's Node adapter places the server-side build output.
-  # This is typically 'dist/server'.
-  directory = "dist/server"
-
-  # REMOVED: main = "entry.mjs"
-  # This line was causing the error. Netlify typically expects the main handler file
-  # (like 'entry.mjs' or 'index.js') to be directly present within the 'directory'
-  # specified above, and it will automatically detect it.
-  # You do NOT need a 'main' property here for the primary server function.
-
-# This section sets up redirects/rewrites.
-# For an SSR application, you typically want all requests to be handled by your
-# serverless function, which then serves the correct page (static or dynamic).
-[[redirects]]
-  from = "/*" # Match all incoming requests
-  to = "/.netlify/functions/entry" # Rewrite to your serverless function's endpoint
-  status = 200 # Return a 200 OK status for successful rewrites
-  force = true # Force the rewrite, even if a static file exists (important for SSR)
-
-# You might also need to set environment variables for your build or runtime.
+# If you have custom environment variables you want to set for the build:
 [build.environment]
   # Example: Make your backend API URL available to your frontend build.
   # This corresponds to `import.meta.env.PUBLIC_VERIDIA_API_POST` in your Astro code.
   # Replace with your actual deployed backend URL.
   PUBLIC_VERIDIA_API_POST = "https://webanalyzer-veridia.onrender.com/web-analyzer" # Replace with your deployed backend URL
+
+  # Clerk environment variables (also set in Netlify UI for production)
+  CLERK_SECRET_KEY = "sk_test_t1C7Rt4SIt7HrgIIS6ppwhSM03vkrhOLGXmuyczfjw" # Your Clerk secret key
+  PUBLIC_CLERK_PUBLISHABLE_KEY = "pk_test_Y2hhbXBpb24tbXVkZmlzaC02LmNsZXJrLmFjY291bnRzLmRldiQ" # Your Clerk publishable key
+
+# You might not need these explicit sections if the adapter handles them.
+# If you do, ensure they are correctly formatted as per Netlify's docs.
+# [[redirects]]
+#   from = "/*"
+#   to = "/.netlify/functions/entry" # Or whatever the adapter names the main function
+#   status = 200
+#   force = true
