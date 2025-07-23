@@ -2,7 +2,6 @@
 
 [build]
   # The command to run to build your Astro project.
-  # This will execute `astro build` as defined in your package.json.
   command = "npm run build"
 
   # The directory that contains the deployable static assets (your frontend HTML, CSS, JS).
@@ -10,18 +9,16 @@
   publish = "dist/client"
 
 # This section configures Netlify Functions (or serverless functions).
-# When using @astrojs/node, Astro compiles your server-side code into a Node.js server
-# that Netlify can run as a serverless function.
 [functions]
   # The directory where Astro's Node adapter places the server-side build output.
   # This is typically 'dist/server'.
   directory = "dist/server"
 
-  # The main entry file for your server-side function.
-  # After running `npm run build`, you should verify the exact name of the main
-  # entry file in your `dist/server` directory. It's often `entry.mjs` or `index.mjs`.
-  # If you find a different name, update this line accordingly.
-  main = "entry.mjs" # <-- IMPORTANT: Verify this file name after building!
+  # REMOVED: main = "entry.mjs"
+  # This line was causing the error. Netlify typically expects the main handler file
+  # (like 'entry.mjs' or 'index.js') to be directly present within the 'directory'
+  # specified above, and it will automatically detect it.
+  # You do NOT need a 'main' property here for the primary server function.
 
 # This section sets up redirects/rewrites.
 # For an SSR application, you typically want all requests to be handled by your
@@ -33,9 +30,8 @@
   force = true # Force the rewrite, even if a static file exists (important for SSR)
 
 # You might also need to set environment variables for your build or runtime.
-# For example, if your frontend needs to know the backend API URL.
 [build.environment]
   # Example: Make your backend API URL available to your frontend build.
   # This corresponds to `import.meta.env.PUBLIC_VERIDIA_API_POST` in your Astro code.
-  # Replace with your actual deployed backend URL (e.g., your Render backend URL).
+  # Replace with your actual deployed backend URL.
   PUBLIC_VERIDIA_API_POST = "https://webanalyzer-veridia.onrender.com/web-analyzer" # Replace with your deployed backend URL
