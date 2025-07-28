@@ -7,23 +7,35 @@ import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Star, Users, Zap, Shield, Globe, CheckCircle, Menu, X } from "lucide-react"
 import { useState } from "react"
-import { useFetch } from "@/hooks/useFetch"
+import { useFetch } from "@/hooks/useFetch" // Assuming this hook handles Axios post requests
 
 export default function LandingPage() {
   const router = useRouter()
-  const apiInput = process.env.NEXT_PUBLIC_VERIDIA_API_MAIN
+  // Ensure this environment variable is correctly set in Netlify for production
+  // and in .env.local for development (e.g., http://localhost:3000/your-api-endpoint)
+  const apiInput = process.env.NEXT_PUBLIC_VERIDIA_API_MAIN 
   const { error, data, isLoading, post } = useFetch(apiInput)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [url, setUrl] = useState("")
-  // New state for actionType
   const [actionType, setActionType] = useState("") 
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     if (!url || !actionType) return // Ensure both fields are filled
-    const result = await post({ url, actionType }) // Include actionType in the post request
+
+    // Construct the full JSON payload
+    const payload = {
+      url: url,
+      requestPrompt: actionType, // Using actionType for requestPrompt
+      analysisContext: actionType, // Using actionType for analysisContext (you might want a separate input for this in the future)
+      geminiModel: "gemini-1.5-flash" // Hardcoding the model as per your example
+    };
+
+    console.log("Sending payload:", payload); // Good for debugging
+
+    const result = await post(payload); // Pass the full payload object
     if (result) {
-      router.push('/dashboard')
+      router.push('/dashboard'); // Navigate only on success
     }
   }
 
@@ -112,7 +124,7 @@ export default function LandingPage() {
                 <Input
                   placeholder="e.g., Summarize, SEO Audit, Performance Check"
                   className="bg-gradient-to-r from-red-900/30 to-orange-900/30 border-2 border-red-700 text-white placeholder-gray-400 w-full text-center py-6 text-lg focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 transition-all duration-200 rounded-xl"
-                  type="text" // Or change to 'select' if you implement a dropdown
+                  type="text" 
                   value={actionType}
                   onChange={(e) => setActionType(e.target.value)}
                 />
