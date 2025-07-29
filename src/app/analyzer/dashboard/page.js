@@ -2,11 +2,13 @@
 
 import { useState, useEffect, useCallback } from "react"
 import axios from "axios"
+
 import ReactMarkdown from "react-markdown"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
+import * as motion from 'motion/react-client'
+import {Separator} from '@/components/ui/separator'
 import {
   ArrowLeft,
   Globe,
@@ -23,12 +25,117 @@ import {
   Sparkles,
 } from "lucide-react"
 import Link from "next/link"
+// Define the animation presets and default values
+const defaultStaggerTimes = {
+  char: 0.03,
+  word: 0.05,
+  line: 0.1,
+};
+
+const defaultContainerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.05,
+    },
+  },
+  exit: {
+    transition: { staggerChildren: 0.05, staggerDirection: -1 },
+  },
+};
+
+const defaultItemVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+  },
+  exit: { opacity: 0 },
+};
+
+const presetVariants = {
+  blur: {
+    container: defaultContainerVariants,
+    item: {
+      hidden: { opacity: 0, filter: 'blur(12px)' },
+      visible: { opacity: 1, filter: 'blur(0px)' },
+      exit: { opacity: 0, filter: 'blur(12px)' },
+    },
+  },
+  'fade-in-blur': {
+    container: defaultContainerVariants,
+    item: {
+      hidden: { opacity: 0, y: 20, filter: 'blur(12px)' },
+      visible: { opacity: 1, y: 0, filter: 'blur(0px)' },
+      exit: { opacity: 0, y: 20, filter: 'blur(12px)' },
+    },
+  },
+  scale: {
+    container: defaultContainerVariants,
+    item: {
+      hidden: { opacity: 0, scale: 0 },
+      visible: { opacity: 1, scale: 1 },
+      exit: { opacity: 0, scale: 0 },
+    },
+  },
+  fade: {
+    container: defaultContainerVariants,
+    item: {
+      hidden: { opacity: 0 },
+      visible: { opacity: 1 },
+      exit: { opacity: 0 },
+    },
+  },
+  slide: {
+    container: defaultContainerVariants,
+    item: {
+      hidden: { opacity: 0, y: 20 },
+      visible: { opacity: 1, y: 0 },
+      exit: { opacity: 0, y: 20 },
+    },
+  },
+};
 
 // Helper function to manage the session ID (web_analyses.id) in localStorage
 const getSessionId = () => localStorage.getItem("currentAnalysisId")
-const setSessionId = (id) => localStorage.setItem("currentAnalysisId", id)
-const clearSessionId = () => localStorage.removeItem("currentAnalysisId")
 
+const clearSessionId = () => localStorage.removeItem("currentAnalysisId")
+const markdownComponents = {
+  p: ({ node, ...props }) => (
+    <motion.p
+      initial={presetVariants.fade.item.hidden}
+      animate={presetVariants.fade.item.visible}
+      transition={{ duration: 0.5, delay: 0.1 }}
+      {...props}
+    />
+  ),
+  li: ({ node, ...props }) => (
+    <motion.li
+      initial={presetVariants.fade.item.hidden}
+      animate={presetVariants.fade.item.visible}
+      transition={{ duration: 0.5, delay: 0.15 }}
+      {...props}
+    />
+  ),
+  h1: ({ node, ...props }) => (
+    <motion.h1
+      initial={presetVariants.fade.item.hidden}
+      animate={presetVariants.fade.item.visible}
+      transition={{ duration: 0.6, delay: 0 }}
+      {...props}
+    />
+  ),
+  strong: ({ node, ...props }) => (
+    <motion.strong
+      initial={presetVariants.fade.item.hidden}
+      animate={presetVariants.fade.item.visible}
+      transition={{ duration: 0.3, delay: 0.05 }}
+      {...props}
+    />
+  ),
+  // All other Markdown elements will be rendered by ReactMarkdown's default components
+  // without explicit motion animations, but will inherit styles from the parent div.
+};
 export default function Dashboard() {
   const [analysisData, setAnalysisData] = useState(null)
   const [loading, setLoading] = useState(false)
@@ -306,7 +413,7 @@ export default function Dashboard() {
                                   [&_td]:p-3 [&_td]:border-b [&_td]:border-red-900/20 [&_td]:text-gray-200
                                   [&_a]:text-orange-400 [&_a]:hover:text-orange-300 [&_a]:underline [&_a]:transition-colors"
                     >
-                      <ReactMarkdown>{analysisData.analysisSummary}</ReactMarkdown>
+                      <ReactMarkdown components={markdownComponents}>{analysisData.analysisSummary}</ReactMarkdown>
                     </div>
                   </div>
                 </CardContent>
